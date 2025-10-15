@@ -3,6 +3,7 @@ CREATE USER 'laligauser'@'localhost' IDENTIFIED BY '2obmv2uqZj3pxx';
 GRANT ALL PRIVILEGES ON laliga.* TO 'laligauser'@'localhost';
 FLUSH PRIVILEGES;
 
+USE laliga;
 
 /* Equipo */
 CREATE TABLE equipo (
