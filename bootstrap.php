@@ -1,52 +1,71 @@
 <?php
-// Detecta entorn (p.ex., via variable d’entorn o host)
-$host = $_SERVER['HTTP_HOST'] ?? 'cli';  // si és una execució CLI, evita error
-if (in_array($host, ['localhost', '127.0.0.1'])) {
-    $env = 'local';
-} else {
-    $env = getenv('APP_ENV') ?: 'production';
+// bootstrap.php
+
+// index.php és a /var/www/html/daw2-2526/index.php
+define('BASE_PATH', __DIR__);                     // /var/www/html/daw2-2526
+define('VIEW_PATH', BASE_PATH . '/view');         // /var/www/html/daw2-2526/view
+
+// Mostra errors en entorn local
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Sessió
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
 }
 
-if ($env === 'local') {
-    ini_set('display_errors', '1');
-    ini_set('display_startup_errors', '1');
-    error_reporting(E_ALL);
-} else {
-    ini_set('display_errors', '0');
-    error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
+// Connexió BD i helpers
+require_once __DIR__ . '/env.php';
+require_once __DIR__ . '/database/database.php';
+require_once __DIR__ . '/view/core-view.php';
+
+// Helpers generals
+function redirect(string $url): void {
+    header("Location: $url");
+    exit;
 }
 
-// Handler d’errors i excepcions “bonic”
-set_error_handler(function ($severity, $message, $file, $line) use ($env) {
-    if (!(error_reporting() & $severity)) return;
-    throw new ErrorException($message, 0, $severity, $file, $line);
-});
+function flash(string $key, string $message): void {
+    $_SESSION['flash'][$key] = $message;
+}
 
-set_exception_handler(function ($e) use ($env) {
-    http_response_code(500);
-    if ($env === 'local') {
-        // Sortida detallada en dev
-        echo "<h1>Exception</h1>";
-        echo "<pre>", htmlspecialchars((string)$e), "</pre>";
-    } else {
-        // Missatge genèric en prod + log
-        error_log($e);
-        echo "Something went wrong.";
+function get_flash(string $key): ?string {
+    if (!isset($_SESSION['flash'][$key])) return null;
+    $msg = $_SESSION['flash'][$key];
+    unset($_SESSION['flash'][$key]);
+    return $msg;
+}
+
+// Autoload molt simple
+spl_autoload_register(function ($class) {
+    $prefix = "App\\";
+    $baseDir = __DIR__ . "/";
+
+    // només classes del nostre namespace
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) {
+        return;
+    }
+
+    $relative = strtolower(substr($class, $len));
+
+    $file = $baseDir . str_replace('\\', '/', $relative) . '.php';
+
+    if (file_exists($file)) {
+        require $file;
     }
 });
 
-// Fatal errors (shutdown handler)
-register_shutdown_function(function () use ($env) {
-    $err = error_get_last();
-    if ($err && in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
-        http_response_code(500);
-        if ($env === 'local') {
-            echo "<h1>Fatal error</h1><pre>";
-            echo htmlspecialchars("{$err['message']} in {$err['file']}:{$err['line']}");
-            echo "</pre>";
-        } else {
-            error_log(print_r($err, true));
-            echo "Something went wrong.";
-        }
+// asset_url
+function asset_url(string $path): string {
+    // $path és "css/app.css", "js/app.js", ...
+    $url = rtrim(BASE_URI, '/') . '/assets/' . ltrim($path, '/');
+    $fs  = __DIR__ . '/assets/' . ltrim($path, '/'); // camí en disc
+
+    // afegeix ?v=timestamp per busting de caché si existeix físicament
+    if (is_file($fs)) {
+        $url .= '?v=' . filemtime($fs);
     }
-});
+    return $url;
+}

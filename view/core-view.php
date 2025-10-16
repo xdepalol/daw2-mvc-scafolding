@@ -1,34 +1,20 @@
 <?php
-// view/core-view.php
-
-/**
- * Renderitza una vista dins d'un layout.
- *
- * @param string $view   Ruta relativa a /view (sense .php), ex: 'equipo/index'
- * @param array  $params Variables a exposar a la vista i el layout (ex: ['title'=>'Equips'])
- * @param string $layout Ruta relativa del layout (sense .php), ex: 'layouts/app'
- */
-function render(string $view, array $params = [], string $layout = 'layouts/app'): void
-{
-    // Exposem variables a la vista i al layout
+function render(string $view, array $params = [], string $layout = 'layouts/app'): void {
     extract($params, EXTR_SKIP);
 
-    // Localitza els fitxers
-    $viewFile   = __DIR__ . "/../../view/{$view}.php";
-    $layoutFile = __DIR__ . "/../../view/{$layout}.php";
+    $viewFile   = VIEW_PATH . '/' . str_replace('.', '/', $view) . '.php';
+    $layoutFile = VIEW_PATH . '/' . $layout . '.php';
 
     if (!is_file($viewFile)) {
-        http_response_code(500);
-        echo "View not found: {$viewFile}";
-        return;
+        throw new RuntimeException("View not found: {$viewFile}");
     }
     if (!is_file($layoutFile)) {
-        http_response_code(500);
-        echo "Layout not found: {$layoutFile}";
-        return;
+        throw new RuntimeException("Layout not found: {$layoutFile}");
     }
-
-    // El layout farà include del $content
-    $content = $viewFile;
+    // $viewFile   = __DIR__ . "/{$view}.php";
+    // $layoutFile = __DIR__ . "/{$layout}.php";
+    // if (!is_file($viewFile) || !is_file($layoutFile)) { http_response_code(500); echo 'View o layout no trobats.'; return; }
+    $content = $viewFile;               // el layout farà include_once $content
+    $pageScripts = $pageScripts ?? null; // opcional: scripts específics
     require $layoutFile;
 }

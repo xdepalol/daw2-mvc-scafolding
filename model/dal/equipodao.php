@@ -1,10 +1,10 @@
 <?php
 
-include_once 'database/database.php';
-include_once 'model/equipo.php';
-include_once 'model/utils.php';
+namespace App\Model\DAL;
 
-use App\Models\Equipo;
+use App\Database\Database;
+use App\Model\Equipo;
+use App\Model\Utils;
 
 class EquipoDao {
 
@@ -56,7 +56,7 @@ class EquipoDao {
         $stmt->execute();
 
         $rows = $stmt->get_result();
-        // $equipo = $rows->fetch_object('App\Models\Equipo');
+        // $equipo = $rows->fetch_object('App\Model\Equipo');
         $row = $rows->fetch_assoc();
         $equipo = ($row) ? EquipoDao::RecordToEquipo($row) : null;
 
@@ -247,7 +247,7 @@ class EquipoDao {
         $created = $row['created_at'] ? new \DateTimeImmutable($row['created_at']) : null;
         $updated = $row['updated_at'] ? new \DateTimeImmutable($row['updated_at']) : null;
 
-        return new \App\Models\Equipo(
+        return new \App\Model\Equipo(
             (int) $row['id'],
             $row['nombre'],
             $row['ciudad'],

@@ -1,0 +1,9 @@
+RewriteEngine On
+RewriteBase /daw2-2526/
+
+# Serveix fitxers/repertoris reals tal qual
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# En cas contrari, passa-ho al router
+RewriteRule ^ index.php [QSA,L]

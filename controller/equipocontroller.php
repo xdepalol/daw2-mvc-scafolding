@@ -4,31 +4,29 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\EquipoService;
-use App\Models\Equipo;
+use App\Model\Equipo;
+use App\Model\DAL\EquipoDao;
 
 class EquipoController
 {
-    public function __construct(private EquipoService $service)
-    {
-        // Si no uses contenidor DI, crea'l a mà:
-        // $this->service = new EquipoService();
-    }
+    // public function __construct(private EquipoService $service)
+    // {
+    //     // Si no uses contenidor DI, crea'l a mà:
+    //     // $this->service = new EquipoService();
+    // }
 
     /**
      * GET /equipo
      * Llista tots els equips, amb ordenació opcional (?sort=nombre,-ciudad, etc.)
      */
-    public function index(): void
+    public static function index(): void
     {
-        $sort = $_GET['sort'] ?? 'id'; // ex: "id", "nombre", "-nombre"
-        $orderBy = $this->normalizeSort($sort); // converteix en "ORDER BY ..." segur
+        // $sort = $_GET['sort'] ?? 'id'; // ex: "id", "nombre", "-nombre"
+        // $orderBy = $this->normalizeSort($sort); // converteix en "ORDER BY ..." segur
 
-        $equipos = $this->service->getAll($orderBy);
+        $equipos = EquipoDao::GetEquipoAll();
 
-        $this->render('equipo/index.php', [
-            'equipos' => $equipos,
-            'sort'    => $sort,
-        ]);
+        render('equipo/index', ['title' => 'Equips', 'equipos' => $equipos, 'includeDatatable' => true]);
     }
 
     /**
@@ -37,16 +35,14 @@ class EquipoController
      */
     public function show(int $id): void
     {
-        $equipo = $this->service->getByIdOrNull($id);
+        $equipo = EquipoDao::GetEquipoByID($id);
 
         if (!$equipo) {
             $this->notFound("No s'ha trobat l'equip #{$id}");
             return;
         }
 
-        $this->render('equipo/show.php', [
-            'equipo' => $equipo,
-        ]);
+        render('equipo/show', ['title' => 'Equip '.$equipo->GetNombre(), 'equipo' => $equipo, 'baseUri' => BASE_URI]);
     }
 
     /**
