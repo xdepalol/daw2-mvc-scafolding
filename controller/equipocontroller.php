@@ -46,18 +46,36 @@ class EquipoController
     }
 
     /**
+     * GET /equipo/{id}/edit
+     * Edita un equip.
+     */
+    public function edit(int $id): void
+    {
+        $equipo = EquipoDao::GetEquipoByID($id);
+
+        if (!$equipo) {
+            $this->notFound("No s'ha trobat l'equip #{$id}");
+            return;
+        }
+
+        render('equipo/edit', ['title' => 'Equip '.$equipo->GetNombre(), 'equipo' => $equipo, 'baseUri' => BASE_URI]);
+    }
+
+    /**
      * GET /equipo/create
      * Mostra el formulari de creació.
      */
     public function create(): void
     {
         // Recupera “old” i “errors” de sessió (patró típic sense framework)
-        session_start();
+        // session_start();
         $old    = $_SESSION['old']    ?? [];
         $errors = $_SESSION['errors'] ?? [];
         unset($_SESSION['old'], $_SESSION['errors']);
 
-        $this->render('equipo/create.php', compact('old', 'errors'));
+        $equipo = new Equipo();
+        $equipo->setPais("España");
+        render('equipo/create', ['title' => 'Creant nou equip', 'equipo' => $equipo, 'baseUri' => BASE_URI]);
     }
 
     /**
@@ -91,10 +109,11 @@ class EquipoController
             pais: $pais
         );
 
-        $newId = $this->service->create($equipo);
+        $newId = EquipoDao::CreateEquipo($equipo);
+        flash('ok', 'Equip creat amb exit!');
 
         // Redirigeix a la fitxa
-        $this->redirect('/equipo/' . $newId);
+        $this->redirect(BASE_URI . '/equipo/' . $newId);
     }
 
     /* ===================== Helpers senzills ===================== */

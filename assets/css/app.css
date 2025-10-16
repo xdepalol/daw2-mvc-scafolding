@@ -1,3 +1,7 @@
 main {
   padding-bottom: 1em;
 }
+
+.btn-back::before {
+  content: "< ";
+}

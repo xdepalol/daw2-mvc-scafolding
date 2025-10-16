@@ -22,6 +22,7 @@
   <!-- Contingut principal -->
   <main class="flex-grow-1 py-4">
     <div class="container">
+      <?php require VIEW_PATH . '/partials/flash.php'; ?>
       <?php
         // Contingut dinàmic de cada vista
         if (isset($content)) {
