@@ -37,6 +37,11 @@
   </div>
 
   <div class="d-flex justify-content-end mt-4">
+
+  </div>
+
+  <div class="bottom-action d-flex flex-wrap gap-2 mt-4">
+    <a href="<?= $baseUri ?>/equipo" class="btn btn-secondary btn-back">Torna</a>
     <button type="submit" class="btn btn-primary">
       <?= htmlspecialchars($button) ?>
     </button>

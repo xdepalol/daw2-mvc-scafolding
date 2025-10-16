@@ -1,10 +1,8 @@
 <?php
 if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
 
-$ok    = $_SESSION['ok']    ?? null;
-$error = $_SESSION['error'] ?? null;
-
-unset($_SESSION['ok'], $_SESSION['error']);
+$ok    = get_flash('ok');
+$error = get_flash('error');
 
 if ($ok): ?>
   <div class="alert alert-success"><?= htmlspecialchars($ok) ?></div>
