@@ -18,7 +18,7 @@ $path = '/' . ltrim($path, '/'); // normalitza
 // Definició de rutes
 $routes = [
     // Llistat
-    ['GET', '#^/$#',                    ['EquipoController', 'index']],
+    ['GET', '#^/$#',                    ['App\Controller\EquipoController', 'index']],
     ['GET', '#^/equipo$#',              ['App\Controller\EquipoController', 'index']],
     // Crear
     ['GET', '#^/equipo/create$#',       ['App\Controller\EquipoController', 'create']],
